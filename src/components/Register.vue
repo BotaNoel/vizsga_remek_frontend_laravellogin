@@ -65,27 +65,21 @@ export default {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          name: this.newProfile.name,
-          email: this.newProfile.email,
-          password: this.newProfile.password,
-          password_confirmation: this.newProfile.password_confirmation
-        })
+        body: JSON.stringify(this.newProfile)
       })
         .then(response => response.json())
         .then(data => {
-          if (data.user) {
-            // Sikeres regisztráció
-            localStorage.setItem("loggedInUser", JSON.stringify(data.user));
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
             this.$router.push("/dashboard");
           } else {
-            // Hibák kezelése
-            this.errors = data.errors || data;
+            this.errors = data.errors || {};
           }
         })
         .catch(error => {
           console.error("Regisztráció sikertelen:", error);
-          alert("Hiba történt a kapcsolat során");
+          alert("Hiba történt a regisztráció során");
         });
     }
   }

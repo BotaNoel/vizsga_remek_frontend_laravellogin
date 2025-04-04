@@ -51,36 +51,34 @@ export default {
   },
   methods: {
     async login() {
-      // Előző hibák törlése
       this.errors = {};
 
       try {
         const response = await fetch("http://127.0.0.1:8000/api/login", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             email: this.user.email,
-            password: this.user.password,
-          }),
+            password: this.user.password
+          })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-          // Sikeres bejelentkezés
-          localStorage.setItem("loggedInUser", JSON.stringify(data.user));
-          this.$router.push("/dashboard"); // Átirányítás a főoldalra vagy dashboard-ra
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          this.$router.push("/dashboard");
         } else {
-          // Hibák kezelése
-          this.errors = data.errors || data;
+          this.errors = data.errors || {};
         }
       } catch (error) {
-        console.error("Hiba történt a bejelentkezés során", error);
+        console.error("Bejelentkezési hiba:", error);
         alert("Hiba történt a bejelentkezés során");
       }
-    },
+    }
   },
 };
 </script>
