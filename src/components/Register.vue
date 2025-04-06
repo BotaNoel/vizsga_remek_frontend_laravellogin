@@ -37,7 +37,7 @@
 
         <!-- Login Link -->
         <div class="mt-5">
-          <p>Már van fiókod? <a href="/login" class="text-primary">Bejelentkezés</a></p>
+          <p>Már van fiókod? <router-link to="/login" class="text-primary">Bejelentkezés</router-link></p>
         </div>
       </div>
     </div>
@@ -58,29 +58,32 @@ export default {
     };
   },
   methods: {
-    register() {
-      fetch("http://127.0.0.1:8000/api/register", {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(this.newProfile)
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.token) {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.user));
-            this.$router.push("/dashboard");
-          } else {
-            this.errors = data.errors || {};
-          }
-        })
-        .catch(error => {
-          console.error("Regisztráció sikertelen:", error);
-          alert("Hiba történt a regisztráció során");
+    async register() {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/register", {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify(this.newProfile)
         });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          this.errors = data.errors || {};
+          return;
+        }
+
+        // Sikeres regisztráció
+        this.errors = {};
+        this.$router.push("/login");
+      } catch (error) {
+        console.error("Regisztráció sikertelen:", error);
+        alert("Hiba történt a regisztráció során.");
+      }
     }
   }
 };

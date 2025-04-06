@@ -18,6 +18,9 @@ export default {
     created() {
         this.fetchTypes();
     },
+    onFileChange(event) {
+        this.apartment.image = event.target.files[0];
+    },
     methods: {
         fetchTypes() {
             fetch("http://127.0.0.1:8000/api/types")
@@ -31,45 +34,33 @@ export default {
         },
 
         uploadApartment() {
-            const authToken = localStorage.getItem("authToken");
+            const formData = new FormData();
+            formData.append("name", this.apartment.name);
+            formData.append("type_id", this.apartment.type_id);
+            formData.append("max_capacity", this.apartment.max_capacity);
+            formData.append("description", this.apartment.description);
+            formData.append("price_per_night", this.apartment.price_per_night);
 
-            if (!authToken) {
-                console.warn("Nincs auth token!");
-                return;
+            if (this.apartment.image) {
+                formData.append("image", this.apartment.image);
             }
-
-            const formData = {
-                name: this.apartment.name,
-                type_id: this.apartment.type_id,
-                max_capacity: this.apartment.max_capacity,
-                description: this.apartment.description,
-                price_per_night: this.apartment.price_per_night,
-            };
-
-            console.log("Küldött adatok:", formData);
 
             fetch("http://127.0.0.1:8000/api/apartments", {
                 method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${authToken}`
-                },
-                body: JSON.stringify(formData)
+                body: formData,
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
                         this.uploadError = data.error;
-                        console.error("Validációs hibák:", data.error);
                     } else {
                         this.successMessage = "Sikeresen létrehozva!";
-                        console.log("Sikeres feltöltés:", data);
+                        this.uploadError = "";
                     }
                 })
                 .catch(error => {
-                    console.error("Hiba az apartman feltöltésekor:", error);
-                    this.uploadError = "Hiba történt a szállás feltöltésekor.";
+                    console.error("Hiba:", error);
+                    this.uploadError = "Hiba történt a feltöltés során.";
                 });
         }
     }
@@ -103,6 +94,10 @@ export default {
             <div class="mb-3">
                 <label class="form-label">Éjszakánkénti ár:</label>
                 <input type="number" step="0.01" v-model="apartment.price_per_night" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Kép feltöltése:</label>
+                <input type="file" @change="onFileChange" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">Feltöltés</button>
         </form>
