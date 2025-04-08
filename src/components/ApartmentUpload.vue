@@ -2,7 +2,6 @@
 export default {
     data() {
         return {
-            authToken: localStorage.getItem("authToken"),
             apartment: {
                 name: "",
                 type_id: "",
@@ -18,9 +17,6 @@ export default {
     created() {
         this.fetchTypes();
     },
-    onFileChange(event) {
-        this.apartment.image = event.target.files[0];
-    },
     methods: {
         fetchTypes() {
             fetch("http://127.0.0.1:8000/api/types")
@@ -34,36 +30,16 @@ export default {
         },
 
         uploadApartment() {
-            const formData = new FormData();
-            formData.append("name", this.apartment.name);
-            formData.append("type_id", this.apartment.type_id);
-            formData.append("max_capacity", this.apartment.max_capacity);
-            formData.append("description", this.apartment.description);
-            formData.append("price_per_night", this.apartment.price_per_night);
-
-            if (this.apartment.image) {
-                formData.append("image", this.apartment.image);
-            }
-
             fetch("http://127.0.0.1:8000/api/apartments", {
                 method: "POST",
-                body: formData,
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        this.uploadError = data.error;
-                    } else {
-                        this.successMessage = "Sikeresen létrehozva!";
-                        this.uploadError = "";
-                    }
-                })
-                .catch(error => {
-                    console.error("Hiba:", error);
-                    this.uploadError = "Hiba történt a feltöltés során.";
-                });
-        }
+                headers: {
+                "Content-Type": "application/json"
+            },
+                body: JSON.stringify({ "name": this.apartment.name, "type_id": this.apartment.type_id, "max_capacity": this.apartment.max_capacity, "description": this.apartment.description, "price_per_night": this.apartment.price_per_night })
+            }).then(response => response.json())
+            .then(console.log('siker'))
     }
+}
 };
 </script>
 
@@ -96,8 +72,8 @@ export default {
                 <input type="number" step="0.01" v-model="apartment.price_per_night" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Kép feltöltése:</label>
-                <input type="file" @change="onFileChange" class="form-control">
+                <label class="form-label">:</label>
+                <input type="number" step="0.01" v-model="apartment.price_per_night" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-primary">Feltöltés</button>
         </form>

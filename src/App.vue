@@ -81,8 +81,7 @@ export default {
                 </div>
               </div>
               <a href="" class="nav-item nav-link">Elérhetőség</a>
-              <a @click="loginSite()" class="nav-item nav-link text-primary pointer" id="login" v-if="loggedInUser ==''" >Bejelentkezés</a>
-              <a @click="loginSite()" class="nav-item nav-link text-primary pointer" id="login" v-else >{{ loggedInUser }}</a>
+              <a href="http://127.0.0.1:8000/login" class="nav-item nav-link text-primary pointer" id="login">Bejelentkezés/Profil</a>
             </div>
             <input type="button" class="btn btn-primary " value="Szálláshely feltöltése" @click="uploadSite()">
           </div>
